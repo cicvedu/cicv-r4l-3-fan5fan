@@ -50,11 +50,10 @@ struct pci_dynid {
  * RETURNS:
  * 0 on success, -errno on failure.
  */
-int pci_add_dynid(struct pci_driver *drv,
-		  unsigned int vendor, unsigned int device,
-		  unsigned int subvendor, unsigned int subdevice,
-		  unsigned int class, unsigned int class_mask,
-		  unsigned long driver_data)
+int pci_add_dynid(struct pci_driver *drv, unsigned int vendor,
+		  unsigned int device, unsigned int subvendor,
+		  unsigned int subdevice, unsigned int class,
+		  unsigned int class_mask, unsigned long driver_data)
 {
 	struct pci_dynid *dynid;
 
@@ -190,15 +189,15 @@ static ssize_t new_id_store(struct device_driver *driver, const char *buf,
 {
 	struct pci_driver *pdrv = to_pci_driver(driver);
 	const struct pci_device_id *ids = pdrv->id_table;
-	u32 vendor, device, subvendor = PCI_ANY_ID,
-		subdevice = PCI_ANY_ID, class = 0, class_mask = 0;
+	u32 vendor, device, subvendor = PCI_ANY_ID, subdevice = PCI_ANY_ID,
+			    class = 0, class_mask = 0;
 	unsigned long driver_data = 0;
 	int fields = 0;
 	int retval = 0;
 
-	fields = sscanf(buf, "%x %x %x %x %x %x %lx",
-			&vendor, &device, &subvendor, &subdevice,
-			&class, &class_mask, &driver_data);
+	fields = sscanf(buf, "%x %x %x %x %x %x %lx", &vendor, &device,
+			&subvendor, &subdevice, &class, &class_mask,
+			&driver_data);
 	if (fields < 2)
 		return -EINVAL;
 
@@ -233,7 +232,7 @@ static ssize_t new_id_store(struct device_driver *driver, const char *buf,
 			}
 			ids++;
 		}
-		if (retval)	/* No match */
+		if (retval) /* No match */
 			return retval;
 	}
 
@@ -258,22 +257,20 @@ static ssize_t remove_id_store(struct device_driver *driver, const char *buf,
 {
 	struct pci_dynid *dynid, *n;
 	struct pci_driver *pdrv = to_pci_driver(driver);
-	u32 vendor, device, subvendor = PCI_ANY_ID,
-		subdevice = PCI_ANY_ID, class = 0, class_mask = 0;
+	u32 vendor, device, subvendor = PCI_ANY_ID, subdevice = PCI_ANY_ID,
+			    class = 0, class_mask = 0;
 	int fields = 0;
 	size_t retval = -ENODEV;
 
-	fields = sscanf(buf, "%x %x %x %x %x %x",
-			&vendor, &device, &subvendor, &subdevice,
-			&class, &class_mask);
+	fields = sscanf(buf, "%x %x %x %x %x %x", &vendor, &device, &subvendor,
+			&subdevice, &class, &class_mask);
 	if (fields < 2)
 		return -EINVAL;
 
 	spin_lock(&pdrv->dynids.lock);
 	list_for_each_entry_safe(dynid, n, &pdrv->dynids.list, node) {
 		struct pci_device_id *id = &dynid->id;
-		if ((id->vendor == vendor) &&
-		    (id->device == device) &&
+		if ((id->vendor == vendor) && (id->device == device) &&
 		    (subvendor == PCI_ANY_ID || id->subvendor == subvendor) &&
 		    (subdevice == PCI_ANY_ID || id->subdevice == subdevice) &&
 		    !((id->class ^ class) & class_mask)) {
@@ -377,12 +374,10 @@ static int pci_call_probe(struct pci_driver *drv, struct pci_dev *dev,
 			error = -ENOMEM;
 			goto out;
 		}
-		cpumask_and(wq_domain_mask,
-			    housekeeping_cpumask(HK_TYPE_WQ),
+		cpumask_and(wq_domain_mask, housekeeping_cpumask(HK_TYPE_WQ),
 			    housekeeping_cpumask(HK_TYPE_DOMAIN));
 
-		cpu = cpumask_any_and(cpumask_of_node(node),
-				      wq_domain_mask);
+		cpu = cpumask_any_and(cpumask_of_node(node), wq_domain_mask);
 		free_cpumask_var(wq_domain_mask);
 	}
 
@@ -633,8 +628,8 @@ static int pci_legacy_suspend(struct device *dev, pm_message_t state)
 		if (error)
 			return error;
 
-		if (!pci_dev->state_saved && pci_dev->current_state != PCI_D0
-		    && pci_dev->current_state != PCI_UNKNOWN) {
+		if (!pci_dev->state_saved && pci_dev->current_state != PCI_D0 &&
+		    pci_dev->current_state != PCI_UNKNOWN) {
 			pci_WARN_ONCE(pci_dev, pci_dev->current_state != prev,
 				      "PCI PM: Device state not saved by %pS\n",
 				      drv->suspend);
@@ -667,8 +662,8 @@ static int pci_legacy_resume(struct device *dev)
 
 	pci_fixup_device(pci_fixup_resume, pci_dev);
 
-	return drv && drv->resume ?
-			drv->resume(pci_dev) : pci_pm_reenable_device(pci_dev);
+	return drv && drv->resume ? drv->resume(pci_dev) :
+				    pci_pm_reenable_device(pci_dev);
 }
 
 /* Auxiliary functions used by the new power management framework */
@@ -708,7 +703,8 @@ static int pci_pm_prepare(struct device *dev)
 		if (error < 0)
 			return error;
 
-		if (!error && dev_pm_test_driver_flags(dev, DPM_FLAG_SMART_PREPARE))
+		if (!error &&
+		    dev_pm_test_driver_flags(dev, DPM_FLAG_SMART_PREPARE))
 			return 0;
 	}
 	if (pci_dev_need_resume(pci_dev))
@@ -748,8 +744,8 @@ static void pci_pm_complete(struct device *dev)
 
 #else /* !CONFIG_PM_SLEEP */
 
-#define pci_pm_prepare	NULL
-#define pci_pm_complete	NULL
+#define pci_pm_prepare NULL
+#define pci_pm_complete NULL
 
 #endif /* !CONFIG_PM_SLEEP */
 
@@ -818,11 +814,12 @@ static int pci_pm_suspend(struct device *dev)
 		if (error)
 			return error;
 
-		if (!pci_dev->state_saved && pci_dev->current_state != PCI_D0
-		    && pci_dev->current_state != PCI_UNKNOWN) {
-			pci_WARN_ONCE(pci_dev, pci_dev->current_state != prev,
-				      "PCI PM: State of device not saved by %pS\n",
-				      pm->suspend);
+		if (!pci_dev->state_saved && pci_dev->current_state != PCI_D0 &&
+		    pci_dev->current_state != PCI_UNKNOWN) {
+			pci_WARN_ONCE(
+				pci_dev, pci_dev->current_state != prev,
+				"PCI PM: State of device not saved by %pS\n",
+				pm->suspend);
 		}
 	}
 
@@ -864,11 +861,12 @@ static int pci_pm_suspend_noirq(struct device *dev)
 		if (error)
 			return error;
 
-		if (!pci_dev->state_saved && pci_dev->current_state != PCI_D0
-		    && pci_dev->current_state != PCI_UNKNOWN) {
-			pci_WARN_ONCE(pci_dev, pci_dev->current_state != prev,
-				      "PCI PM: State of device not saved by %pS\n",
-				      pm->suspend_noirq);
+		if (!pci_dev->state_saved && pci_dev->current_state != PCI_D0 &&
+		    pci_dev->current_state != PCI_UNKNOWN) {
+			pci_WARN_ONCE(
+				pci_dev, pci_dev->current_state != prev,
+				"PCI PM: State of device not saved by %pS\n",
+				pm->suspend_noirq);
 			goto Fixup;
 		}
 	}
@@ -1007,12 +1005,12 @@ static int pci_pm_resume(struct device *dev)
 
 #else /* !CONFIG_SUSPEND */
 
-#define pci_pm_suspend		NULL
-#define pci_pm_suspend_late	NULL
-#define pci_pm_suspend_noirq	NULL
-#define pci_pm_resume		NULL
-#define pci_pm_resume_early	NULL
-#define pci_pm_resume_noirq	NULL
+#define pci_pm_suspend NULL
+#define pci_pm_suspend_late NULL
+#define pci_pm_suspend_noirq NULL
+#define pci_pm_resume NULL
+#define pci_pm_resume_early NULL
+#define pci_pm_resume_noirq NULL
 
 #endif /* !CONFIG_SUSPEND */
 
@@ -1256,15 +1254,15 @@ static int pci_pm_restore(struct device *dev)
 
 #else /* !CONFIG_HIBERNATE_CALLBACKS */
 
-#define pci_pm_freeze		NULL
-#define pci_pm_freeze_noirq	NULL
-#define pci_pm_thaw		NULL
-#define pci_pm_thaw_noirq	NULL
-#define pci_pm_poweroff		NULL
-#define pci_pm_poweroff_late	NULL
-#define pci_pm_poweroff_noirq	NULL
-#define pci_pm_restore		NULL
-#define pci_pm_restore_noirq	NULL
+#define pci_pm_freeze NULL
+#define pci_pm_freeze_noirq NULL
+#define pci_pm_thaw NULL
+#define pci_pm_thaw_noirq NULL
+#define pci_pm_poweroff NULL
+#define pci_pm_poweroff_late NULL
+#define pci_pm_poweroff_noirq NULL
+#define pci_pm_restore NULL
+#define pci_pm_restore_noirq NULL
 
 #endif /* !CONFIG_HIBERNATE_CALLBACKS */
 
@@ -1298,7 +1296,8 @@ static int pci_pm_runtime_suspend(struct device *dev)
 		 * log level.
 		 */
 		if (error == -EBUSY || error == -EAGAIN) {
-			pci_dbg(pci_dev, "can't suspend now (%ps returned %d)\n",
+			pci_dbg(pci_dev,
+				"can't suspend now (%ps returned %d)\n",
 				pm->runtime_suspend, error);
 			return error;
 		} else if (error) {
@@ -1310,9 +1309,9 @@ static int pci_pm_runtime_suspend(struct device *dev)
 
 	pci_fixup_device(pci_fixup_suspend, pci_dev);
 
-	if (pm && pm->runtime_suspend
-	    && !pci_dev->state_saved && pci_dev->current_state != PCI_D0
-	    && pci_dev->current_state != PCI_UNKNOWN) {
+	if (pm && pm->runtime_suspend && !pci_dev->state_saved &&
+	    pci_dev->current_state != PCI_D0 &&
+	    pci_dev->current_state != PCI_UNKNOWN) {
 		pci_WARN_ONCE(pci_dev, pci_dev->current_state != prev,
 			      "PCI PM: State of device not saved by %pS\n",
 			      pm->runtime_suspend);
@@ -1401,15 +1400,15 @@ static const struct dev_pm_ops pci_dev_pm_ops = {
 	.runtime_idle = pci_pm_runtime_idle,
 };
 
-#define PCI_PM_OPS_PTR	(&pci_dev_pm_ops)
+#define PCI_PM_OPS_PTR (&pci_dev_pm_ops)
 
 #else /* !CONFIG_PM */
 
-#define pci_pm_runtime_suspend	NULL
-#define pci_pm_runtime_resume	NULL
-#define pci_pm_runtime_idle	NULL
+#define pci_pm_runtime_suspend NULL
+#define pci_pm_runtime_resume NULL
+#define pci_pm_runtime_idle NULL
 
-#define PCI_PM_OPS_PTR	NULL
+#define PCI_PM_OPS_PTR NULL
 
 #endif /* !CONFIG_PM */
 
@@ -1460,9 +1459,7 @@ void pci_unregister_driver(struct pci_driver *drv)
 }
 EXPORT_SYMBOL(pci_unregister_driver);
 
-static struct pci_driver pci_compat_driver = {
-	.name = "compat"
-};
+static struct pci_driver pci_compat_driver = { .name = "compat" };
 
 /**
  * pci_dev_driver - get the pci_driver of a device
@@ -1560,18 +1557,18 @@ static int pci_uevent(struct device *dev, struct kobj_uevent_env *env)
 	if (add_uevent_var(env, "PCI_ID=%04X:%04X", pdev->vendor, pdev->device))
 		return -ENOMEM;
 
-	if (add_uevent_var(env, "PCI_SUBSYS_ID=%04X:%04X", pdev->subsystem_vendor,
-			   pdev->subsystem_device))
+	if (add_uevent_var(env, "PCI_SUBSYS_ID=%04X:%04X",
+			   pdev->subsystem_vendor, pdev->subsystem_device))
 		return -ENOMEM;
 
 	if (add_uevent_var(env, "PCI_SLOT_NAME=%s", pci_name(pdev)))
 		return -ENOMEM;
 
-	if (add_uevent_var(env, "MODALIAS=pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02X",
-			   pdev->vendor, pdev->device,
-			   pdev->subsystem_vendor, pdev->subsystem_device,
-			   (u8)(pdev->class >> 16), (u8)(pdev->class >> 8),
-			   (u8)(pdev->class)))
+	if (add_uevent_var(
+		    env, "MODALIAS=pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02X",
+		    pdev->vendor, pdev->device, pdev->subsystem_vendor,
+		    pdev->subsystem_device, (u8)(pdev->class >> 16),
+		    (u8)(pdev->class >> 8), (u8)(pdev->class)))
 		return -ENOMEM;
 
 	return 0;
@@ -1662,19 +1659,19 @@ static void pci_dma_cleanup(struct device *dev)
 }
 
 struct bus_type pci_bus_type = {
-	.name		= "pci",
-	.match		= pci_bus_match,
-	.uevent		= pci_uevent,
-	.probe		= pci_device_probe,
-	.remove		= pci_device_remove,
-	.shutdown	= pci_device_shutdown,
-	.dev_groups	= pci_dev_groups,
-	.bus_groups	= pci_bus_groups,
-	.drv_groups	= pci_drv_groups,
-	.pm		= PCI_PM_OPS_PTR,
-	.num_vf		= pci_bus_num_vf,
-	.dma_configure	= pci_dma_configure,
-	.dma_cleanup	= pci_dma_cleanup,
+	.name = "pci",
+	.match = pci_bus_match,
+	.uevent = pci_uevent,
+	.probe = pci_device_probe,
+	.remove = pci_device_remove,
+	.shutdown = pci_device_shutdown,
+	.dev_groups = pci_dev_groups,
+	.bus_groups = pci_bus_groups,
+	.drv_groups = pci_drv_groups,
+	.pm = PCI_PM_OPS_PTR,
+	.num_vf = pci_bus_num_vf,
+	.dma_configure = pci_dma_configure,
+	.dma_cleanup = pci_dma_cleanup,
 };
 EXPORT_SYMBOL(pci_bus_type);
 
@@ -1701,8 +1698,8 @@ static int pcie_port_bus_match(struct device *dev, struct device_driver *drv)
 }
 
 struct bus_type pcie_port_bus_type = {
-	.name		= "pci_express",
-	.match		= pcie_port_bus_match,
+	.name = "pci_express",
+	.match = pcie_port_bus_match,
 };
 EXPORT_SYMBOL_GPL(pcie_port_bus_type);
 #endif
