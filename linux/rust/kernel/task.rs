@@ -100,6 +100,12 @@ impl Task {
         unsafe { core::ptr::addr_of!((*self.0.get()).pid).read() }
     }
 
+    /// Returns the comm of the given task.
+    pub fn comm(&self) -> [core::ffi::c_char; 16usize] {
+        // SAFETY: By the type invariant, we know that `self.0` is valid.
+        unsafe { core::ptr::addr_of!((*self.0.get()).comm).read() }
+    }
+
     /// Determines whether the given task has pending signals.
     pub fn signal_pending(&self) -> bool {
         // SAFETY: By the type invariant, we know that `self.0` is valid.
