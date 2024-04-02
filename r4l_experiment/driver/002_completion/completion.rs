@@ -34,11 +34,11 @@ impl file::Operations for CdevOps {
     fn open(_shared: &(), _file: &File) -> Result<Self::Data> {
         pr_info!("completion_open() is invoked\n");
 
-        let mut data = Pin::from(Box::try_new(unsafe { Mutex::new(0) })?);
+        /*   let mut data = Pin::from(Box::try_new(unsafe { Mutex::new(0) })?);
         mutex_init!(data.as_mut(), "Sync::data");
 
         let mut cv = Pin::from(Box::try_new(unsafe { CondVar::new() })?);
-        condvar_init!(cv.as_mut(), "Sync::cv");
+        condvar_init!(cv.as_mut(), "Sync::cv"); */
 
         Ok(())
     }
