@@ -1,1 +1,0 @@
-cmd_/home/fan/r4l/cicv-r4l-3-fan5fan/r4l_experiment/driver/002_completion/Module.symvers :=  sed 's/ko$$/o/'  /home/fan/r4l/cicv-r4l-3-fan5fan/r4l_experiment/driver/002_completion/modules.order | scripts/mod/modpost      -o /home/fan/r4l/cicv-r4l-3-fan5fan/r4l_experiment/driver/002_completion/Module.symvers -e -i Module.symvers -T - 
